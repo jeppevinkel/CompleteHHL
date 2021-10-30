@@ -10,12 +10,15 @@ from qiskit.circuit import Qubit
 
 def qft(qc: QuantumCircuit, qr: QuantumRegister):
     n = qr.size
+    for i in range(int(n/2)):
+        qc.swap(i, n-1-i)
     for q in range(qr.size):
-        qc.h(q)
+        qb = q
+        qc.h(qb)
         r = 2
-        i = q+1
+        i = qb+1
         while r <= n-q:
-            qc.cp(np.pi/2**(r-1), q, i)
+            qc.cp(np.pi/2**(r-1), qb, i)
             r += 1
             i += 1
 
@@ -34,29 +37,24 @@ def create_qft(size: int):
 def create_qft_inverse(size: int):
     qc = create_qft(size).inverse()
     qc.name = "inv_qft"
+
+    plot = qc.draw(output='mpl')
+    plot.show()
+    print(qc.draw())
     return qc
 
 
-# def qft_dagger(qc, qr: QuantumRegister):
-#     """n-qubit QFTdagger the first n qubits in circ"""
-#     # Don't forget the Swaps!
-#     for qubit in range(qr.size//2):
-#         qc.swap(qr[qubit], qr[qr.size-qubit-1])
-#     for j in range(qr.size):
-#         for m in range(j):
-#             qc.cp(-np.pi/float(2**(j-m)), qr[m], qr[j])
-#         qc.h(qr[j])
-
-
 if __name__ == '__main__':
-    t = np.pi
+    # t = np.pi
     a = 1
     b = 1/2
     ancillaRegister = QuantumRegister(1, name='ancilla')
     cRegister = QuantumRegister(2, name='clock')
     bRegister = QuantumRegister(1, name='b')
-    measurement = ClassicalRegister(1, name='measurement')
+    measurement = ClassicalRegister(2, name='measurement')
     circuit = QuantumCircuit(ancillaRegister, cRegister, bRegister, measurement)
+
+    circuit.x(bRegister)
 
     # Quantum Phase Estimation #
     # H
@@ -64,26 +62,8 @@ if __name__ == '__main__':
 
     circuit.barrier()
     # e^(iAt)
-
-    # circuit.p(a*t, cRegister[0])
-    # circuit.p(a*t*2, cRegister[1])
-    # circuit.u(b*t, -np.pi/2, np.pi/2, bRegister)
-    #
-    # params = b * t
-    # circuit.p(np.pi/2, bRegister)
-    # circuit.cx(cRegister[0], bRegister)
-    # circuit.ry(params, bRegister)
-    # circuit.cx(cRegister[0], bRegister)
-    # circuit.ry(-params, bRegister)
-    # circuit.p(3*np.pi/2, bRegister)
-    #
-    # params = b * t * 2
-    # circuit.p(np.pi/2, bRegister)
-    # circuit.cx(cRegister[1], bRegister)
-    # circuit.ry(params, bRegister)
-    # circuit.cx(cRegister[1], bRegister)
-    # circuit.ry(-params, bRegister)
-    # circuit.p(3*np.pi/2, bRegister)
+    circuit.cu(np.pi, (5*np.pi)/2, (3*np.pi)/2, 0, cRegister[0], bRegister)
+    circuit.cu(2*np.pi, 0, 0, 0, cRegister[1], bRegister)
 
     circuit.barrier()
     # IQFT
@@ -94,6 +74,12 @@ if __name__ == '__main__':
     # RY
     circuit.cry(2*np.arcsin(1/3), cRegister[0], ancillaRegister)
     circuit.cry(2*np.arcsin(1), cRegister[1], ancillaRegister)
+    # circuit.cry(np.pi, cRegister[0], ancillaRegister)
+    # circuit.cry(np.pi/3, cRegister[1], ancillaRegister)
+
+    circuit.barrier()
+    # measure ancilla
+    circuit.measure(ancillaRegister, measurement[0])
 
     circuit.barrier()
     # Inverse Quantum Phase Estimation #
@@ -102,34 +88,17 @@ if __name__ == '__main__':
     circuit.append(_qft, cRegister)
 
     circuit.barrier()
-    # e^(iAt)
+    # e^(-iAt)
+    circuit.cu(2*np.pi, 0, 0, 0, cRegister[1], bRegister)
+    circuit.cu(np.pi, (-5*np.pi)/2, (-3*np.pi)/2, 0, cRegister[0], bRegister)
 
-    # circuit.h(cRegister[1])
-    # circuit.rz(-np.pi/4, cRegister[1])
-    # circuit.cx(cRegister[0], cRegister[1])
-    # circuit.rz(np.pi/4, cRegister[1])
-    # circuit.cx(cRegister[0], cRegister[1])
-    # circuit.rz(-np.pi/4, cRegister[0])
-    # circuit.h(cRegister[0])
-    #
-    # t1 = (-np.pi + np.pi / 3 - 2 * np.arcsin(1 / 3)) / 4
-    # t2 = (-np.pi - np.pi / 3 + 2 * np.arcsin(1 / 3)) / 4
-    # t3 = (np.pi - np.pi / 3 - 2 * np.arcsin(1 / 3)) / 4
-    # t4 = (np.pi + np.pi / 3 + 2 * np.arcsin(1 / 3)) / 4
-    #
-    # circuit.cx(cRegister[1], ancillaRegister[0])
-    # circuit.ry(t1, ancillaRegister[0])
-    # circuit.cx(cRegister[0], ancillaRegister[0])
-    # circuit.ry(t2, ancillaRegister[0])
-    # circuit.cx(cRegister[1], ancillaRegister[0])
-    # circuit.ry(t3, ancillaRegister[0])
-    # circuit.cx(cRegister[0], ancillaRegister[0])
-    # circuit.ry(t4, ancillaRegister[0])
-    # circuit.measure_all()
+    circuit.barrier()
+    # H
+    circuit.h(cRegister)
 
     # qft_dagger(circuit, cRegister)
     circuit.barrier()
-    circuit.measure(ancillaRegister, measurement[0])
+    circuit.measure(bRegister, measurement[1])
 
     circuit.draw(output='mpl').show()
 
