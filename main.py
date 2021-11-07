@@ -54,50 +54,50 @@ if __name__ == '__main__':
     measurement = ClassicalRegister(2, name='measurement')
     circuit = QuantumCircuit(ancillaRegister, cRegister, bRegister, measurement)
 
-    circuit.x(bRegister)
+    # circuit.x(bRegister)
 
     # Quantum Phase Estimation #
     # H
     circuit.h(cRegister)
 
-    circuit.barrier()
+    # circuit.barrier()
     # e^(iAt)
-    circuit.cu(np.pi, (5*np.pi)/2, (3*np.pi)/2, 0, cRegister[0], bRegister)
-    circuit.cu(2*np.pi, 0, 0, 0, cRegister[1], bRegister)
+    circuit.cu(-2*np.pi, 0, 0, 0, cRegister[0], bRegister)
+    circuit.cu(3*np.pi, (5*np.pi)/2, (3*np.pi)/2, 0, cRegister[1], bRegister)
 
-    circuit.barrier()
+    # circuit.barrier()
     # IQFT
     inv_qft = create_qft_inverse(cRegister.size)
     circuit.append(inv_qft, cRegister)
 
-    circuit.barrier()
+    # circuit.barrier()
     # RY
     circuit.cry(2*np.arcsin(1/3), cRegister[0], ancillaRegister)
     circuit.cry(2*np.arcsin(1), cRegister[1], ancillaRegister)
     # circuit.cry(np.pi, cRegister[0], ancillaRegister)
     # circuit.cry(np.pi/3, cRegister[1], ancillaRegister)
 
-    circuit.barrier()
+    # circuit.barrier()
     # measure ancilla
     circuit.measure(ancillaRegister, measurement[0])
 
-    circuit.barrier()
+    # circuit.barrier()
     # Inverse Quantum Phase Estimation #
     # QFT
     _qft = create_qft(cRegister.size)
     circuit.append(_qft, cRegister)
 
-    circuit.barrier()
+    # circuit.barrier()
     # e^(-iAt)
-    circuit.cu(2*np.pi, 0, 0, 0, cRegister[1], bRegister)
-    circuit.cu(np.pi, (-5*np.pi)/2, (-3*np.pi)/2, 0, cRegister[0], bRegister)
+    circuit.cu(5 * np.pi, (5 * np.pi) / 2, (3 * np.pi) / 2, 0, cRegister[1], bRegister)
+    circuit.cu(-2*np.pi, 0, 0, 0, cRegister[0], bRegister)
 
-    circuit.barrier()
+    # circuit.barrier()
     # H
     circuit.h(cRegister)
 
     # qft_dagger(circuit, cRegister)
-    circuit.barrier()
+    # circuit.barrier()
     circuit.measure(bRegister, measurement[1])
 
     circuit.draw(output='mpl').show()
