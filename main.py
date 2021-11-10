@@ -62,8 +62,12 @@ if __name__ == '__main__':
 
     # circuit.barrier()
     # e^(iAt)
-    circuit.cu(-2*np.pi, 0, 0, 0, cRegister[0], bRegister)
-    circuit.cu(3*np.pi, (5*np.pi)/2, (3*np.pi)/2, 0, cRegister[1], bRegister)
+
+    circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[0], bRegister)
+    circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[1], bRegister)
+    circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[1], bRegister)
+    # circuit.cu(-2*np.pi, 0, 0, 0, cRegister[0], bRegister)
+    # circuit.cu(3*np.pi, (5*np.pi)/2, (3*np.pi)/2, 0, cRegister[1], bRegister)
 
     # circuit.barrier()
     # IQFT
@@ -89,8 +93,11 @@ if __name__ == '__main__':
 
     # circuit.barrier()
     # e^(-iAt)
-    circuit.cu(5 * np.pi, (5 * np.pi) / 2, (3 * np.pi) / 2, 0, cRegister[1], bRegister)
-    circuit.cu(-2*np.pi, 0, 0, 0, cRegister[0], bRegister)
+    circuit.cu(np.pi, 3 * np.pi / 2, 5 * np.pi / 2, 0, cRegister[1], bRegister)
+    circuit.cu(np.pi, 3 * np.pi / 2, 5 * np.pi / 2, 0, cRegister[1], bRegister)
+    circuit.cu(np.pi, 3 * np.pi / 2, 5 * np.pi / 2, 0, cRegister[0], bRegister)
+    # circuit.cu(5 * np.pi, (5 * np.pi) / 2, (3 * np.pi) / 2, 0, cRegister[1], bRegister)
+    # circuit.cu(-2*np.pi, 0, 0, 0, cRegister[0], bRegister)
 
     # circuit.barrier()
     # H
