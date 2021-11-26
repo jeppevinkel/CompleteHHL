@@ -6,19 +6,22 @@ from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
 from qiskit.circuit.library.standard_gates import RYGate
 from qiskit.visualization import plot_histogram, plot_bloch_multivector
 from qiskit.circuit import Qubit
+from qiskit.extensions import UnitaryGate
+import unitaryDecomposition
+import divideAndConquer
 
 
 def qft(qc: QuantumCircuit, qr: QuantumRegister):
     n = qr.size
-    for i in range(int(n/2)):
-        qc.swap(i, n-1-i)
+    for i in range(int(n / 2)):
+        qc.swap(i, n - 1 - i)
     for q in range(qr.size):
         qb = q
         qc.h(qb)
         r = 2
-        i = qb+1
-        while r <= n-q:
-            qc.cp(np.pi/2**(r-1), qb, i)
+        i = qb + 1
+        while r <= n - q:
+            qc.cp(np.pi / 2 ** (r - 1), qb, i)
             r += 1
             i += 1
 
@@ -47,7 +50,7 @@ def create_qft_inverse(size: int):
 if __name__ == '__main__':
     # t = np.pi
     a = 1
-    b = 1/2
+    b = 1 / 2
     ancillaRegister = QuantumRegister(1, name='ancilla')
     cRegister = QuantumRegister(2, name='clock')
     bRegister = QuantumRegister(1, name='b')
@@ -63,9 +66,9 @@ if __name__ == '__main__':
     # circuit.barrier()
     # e^(iAt)
 
-    circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[0], bRegister)
-    circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[1], bRegister)
-    circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[1], bRegister)
+    circuit.cu(np.pi, 3 * np.pi / 2, 5 * np.pi / 2, 0, cRegister[0], bRegister)
+    circuit.cu(np.pi, 3 * np.pi / 2, 5 * np.pi / 2, 0, cRegister[1], bRegister)
+    circuit.cu(np.pi, 3 * np.pi / 2, 5 * np.pi / 2, 0, cRegister[1], bRegister)
     # circuit.cu(-2*np.pi, 0, 0, 0, cRegister[0], bRegister)
     # circuit.cu(3*np.pi, (5*np.pi)/2, (3*np.pi)/2, 0, cRegister[1], bRegister)
 
@@ -76,8 +79,8 @@ if __name__ == '__main__':
 
     # circuit.barrier()
     # RY
-    circuit.cry(2*np.arcsin(1/3), cRegister[0], ancillaRegister)
-    circuit.cry(2*np.arcsin(1), cRegister[1], ancillaRegister)
+    circuit.cry(2 * np.arcsin(1 / 3), cRegister[0], ancillaRegister)
+    circuit.cry(2 * np.arcsin(1), cRegister[1], ancillaRegister)
     # circuit.cry(np.pi, cRegister[0], ancillaRegister)
     # circuit.cry(np.pi/3, cRegister[1], ancillaRegister)
 
