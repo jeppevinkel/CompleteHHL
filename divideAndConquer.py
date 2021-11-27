@@ -144,7 +144,8 @@ class DivideAndConquer:
 
         angles = gen_angles(np.abs(vector))
         register = self.divide_and_conquer(angles)
-        self.circuit.draw(output='mpl').show()
+        print(vector.size)
+        # self.circuit.draw(output='mpl').show()
         return register
 
     def measureB(self, measure_register: ClassicalRegister):
