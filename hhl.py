@@ -20,24 +20,26 @@ def qft(qc: QuantumCircuit, qr: QuantumRegister):
             i += 1
 
 
-def create_qft(size: int):
+def create_qft(size: int, printCircuit=False):
     qr = QuantumRegister(size)
     qc = QuantumCircuit(qr, name="qft")
     qft(qc, qr)
 
-    plot = qc.draw(output='mpl')
-    plot.show()
-    print(qc.draw())
+    if printCircuit:
+        plot = qc.draw(output='mpl')
+        plot.show()
+        print(qc.draw())
     return qc
 
 
-def create_qft_inverse(size: int):
+def create_qft_inverse(size: int, printCircuit=False):
     qc = create_qft(size).inverse()
     qc.name = "inv_qft"
 
-    plot = qc.draw(output='mpl')
-    plot.show()
-    print(qc.draw())
+    if printCircuit:
+        plot = qc.draw(output='mpl')
+        plot.show()
+        print(qc.draw())
     return qc
 
 
@@ -52,41 +54,51 @@ def hhl(A, b, t, printCircuit: bool = False):
     circuit = QuantumCircuit()
     ancillaRegister = QuantumRegister(1, name='ancilla')
     cRegister = QuantumRegister(A.shape[0], name='clock')
-    measurement = ClassicalRegister(b.size()+1, name='measurement')
     divideAndConquer = DivideAndConquer(circuit)
-    bRegister = divideAndConquer.loadB(b)
+    usingDivide: bool = False
+    if b.size == 2:
+        bRegister = QuantumRegister(1, name='b')
+        circuit.add_register(bRegister)
+        theta = np.arccos(b[0])
+        circuit.ry(theta * 2, bRegister)
+    else:
+        divideAndConquer.loadB(b)
+        bRegister = divideAndConquer.measurePoints
+        usingDivide = True
+    measurement = ClassicalRegister(bRegister.size + 1, name='measurement')
 
     circuit.add_register(ancillaRegister)
     circuit.add_register(cRegister)
     circuit.add_register(measurement)
 
     Umatrix, eigs = UMatrix(A)
-    CU = CUGate(Umatrix, bRegister.size())
+    CU = CUGate(Umatrix)  # DeprecationWarning!
+    circuit.barrier()
 
     # ---------QPE------------
     circuit.h(cRegister)
-    for k in range(cRegister.size()):
-        for i in range(k):
-            circuit.append(CU, [cRegister[i], bRegister])
+
+    for k in range(cRegister.size):
+        for i in range(np.power(2, k)):
+            circuit.append(CU, [cRegister[k], *bRegister])
 
     # circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[0], bRegister)
     # circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[1], bRegister)
     # circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[1], bRegister)
     # IQFT
-    inv_qft = create_qft_inverse(cRegister.size)
+    inv_qft = create_qft_inverse(cRegister.size, printCircuit)
     circuit.append(inv_qft, cRegister)
 
     # ---------RY-------------
-    eigTilde = (eigs * t / (2 * np.pi)) * 2 ** cRegister.size()
-    minEigs = np.min(eigTilde)  # Serching somehow for min... NOT GOOD
-    C = (minEigs * t)
+    eigTilde = (eigs * t / (2 * np.pi)) * 2 ** cRegister.size
+    C = np.min(eigTilde)  # Serching somehow for min... NOT GOOD
 
-    for i in range(cRegister.size()):
-        circuit.cry(rY_roation(eigTilde[i], C), cRegister[i], ancillaRegister)
+    for i in range(cRegister.size):
+        circuit.cry(rY_roation(eigTilde[cRegister.size - 1 - i], C), cRegister[i], ancillaRegister)
 
     # --------IQPE-------------
     # QFT
-    _qft = create_qft(cRegister.size)
+    _qft = create_qft(cRegister.size, printCircuit)
     circuit.append(_qft, cRegister)
 
     circuit.h(cRegister)
@@ -95,9 +107,16 @@ def hhl(A, b, t, printCircuit: bool = False):
             circuit.append(CU.inverse(), [cRegister[i], bRegister])
 
     # Measurements-----------------
-    circuit.measure(bRegister, measurement[0])
-    divideAndConquer.measureB(measurement)
+    circuit.measure(ancillaRegister, measurement[0])
+    # if usingDivide:
+    #     divideAndConquer.measureB(measurement)
+    # else:
+    #     circuit.measure(bRegister, measurement[1])
+    for i in range(bRegister.size):
+        circuit.measure(bRegister[i], measurement[i+1])
 
-    #HHL finished!-------------------------
+    # HHL finished!-------------------------
     if printCircuit == True:
         circuit.draw(output='mpl').show()
+
+    return circuit

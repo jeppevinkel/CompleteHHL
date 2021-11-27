@@ -63,6 +63,7 @@ class DivideAndConquer:
     N: int
     circuit: QuantumCircuit
     register: QuantumRegister
+    measurePoints = np.array([], dtype=int)
 
     def __init__(self, circuit: QuantumCircuit):
         self.circuit = circuit
@@ -88,6 +89,12 @@ class DivideAndConquer:
                 right_index = left(right_index)
             actual = actual - 1
 
+        actual = 0
+        while actual < (N - 1) / 2:
+            self.measurePoints = np.append(self.measurePoints, actual)
+            actual = left(actual)
+        self.measurePoints = self.measurePoints[::-1]
+
         return bRegister
 
     def divide_and_conquer(self, angles: list):
@@ -97,7 +104,7 @@ class DivideAndConquer:
         self.register = bRegister
         self.circuit.add_register(bRegister)
         for k in range(N - 1):
-            self.circuit.ry(bRegister[angles[k]], k)
+            self.circuit.ry(angles[k], bRegister[k])
 
         actual = N - 2
         while actual >= 0:
@@ -109,6 +116,12 @@ class DivideAndConquer:
                 right_index = left(right_index)
             actual = actual - 1
 
+        actual = 0
+        while actual < (N - 1) / 2:
+            self.measurePoints = np.append(self.measurePoints, actual)
+            actual = left(actual)
+        self.measurePoints = self.measurePoints[::-1]
+
         return bRegister
 
     def gen_circuit(self, angles):
@@ -117,7 +130,7 @@ class DivideAndConquer:
         for k in range(0, len(angles)):
             j = level(k)
             if j == 0:
-                circuit.ry(angles[k], j)
+                circuit.ry(k, angles[j])
             else:
                 print("level: " + str(j))
                 myGate = RYGate(angles[k]).control(j)
@@ -127,7 +140,7 @@ class DivideAndConquer:
         return circuit
 
     def loadB(self, vector: np.ndarray):
-        assert vector.size % 2 == 1
+        assert vector.size % 2 == 0
 
         angles = gen_angles(np.abs(vector))
         register = self.divide_and_conquer(angles)
@@ -135,9 +148,5 @@ class DivideAndConquer:
         return register
 
     def measureB(self, measure_register: ClassicalRegister):
-        actual = 0
-        index = 1
-        while actual < (self.N - 1) / 2:
-            self.circuit.measure(self.register[actual], measure_register[index])
-            actual = left(actual)
-            index = index + 1
+        for i in range(self.measurePoints.size):
+            self.circuit.measure(self.measurePoints[i], measure_register[i+1])

@@ -9,42 +9,37 @@ from qiskit.circuit import Qubit
 from qiskit.extensions import UnitaryGate
 import unitaryDecomposition
 import divideAndConquer
+import hhl
 
 
-def qft(qc: QuantumCircuit, qr: QuantumRegister):
-    n = qr.size
-    for i in range(int(n / 2)):
-        qc.swap(i, n - 1 - i)
-    for q in range(qr.size):
-        qb = q
-        qc.h(qb)
-        r = 2
-        i = qb + 1
-        while r <= n - q:
-            qc.cp(np.pi / 2 ** (r - 1), qb, i)
-            r += 1
-            i += 1
+def main():
+    A = np.array([[1, 1 / 2],
+                  [1 / 2, 1]])
+    b = np.array([[1], [0]])
 
+    A2 = np.array([[4, -1, -1, -1],
+                   [-1, 4, -1, -1],
+                   [-1, -1, -1, -1],
+                   [-1, -1, -1, 4]])
 
-def create_qft(size: int):
-    qr = QuantumRegister(size)
-    qc = QuantumCircuit(qr, name="qft")
-    qft(qc, qr)
+    b2 = np.array([[4], [1], [9], [0.6]])
 
-    plot = qc.draw(output='mpl')
-    plot.show()
-    print(qc.draw())
-    return qc
+    circuit = hhl.hhl(A, b, np.pi, printCircuit=True)
 
-
-def create_qft_inverse(size: int):
-    qc = create_qft(size).inverse()
-    qc.name = "inv_qft"
-
-    plot = qc.draw(output='mpl')
-    plot.show()
-    print(qc.draw())
-    return qc
+    # -----Simulation------------
+    backend = Aer.get_backend('aer_simulator')
+    t_circuit = transpile(circuit, backend)
+    result = backend.run(t_circuit, shots=2048).result()
+    counts = result.get_counts()
+    filteredCounts = dict()
+    for key, value in counts.items():
+        if key[len(key)-1] == '1':
+            filteredCounts[key] = value
+    print(counts)
+    print(filteredCounts)
+    if len(filteredCounts):
+        plot_histogram(filteredCounts).show()
+    plot_histogram(counts).show()
 
 
 if __name__ == '__main__':

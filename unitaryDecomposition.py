@@ -11,7 +11,7 @@ def isHermitian(matrix: np.ndarray):
 
 
 def MatToEvenHermitian(a: np.ndarray, b: np.ndarray):
-    if a.shape[0] % 2 == 0 and isHermitian(a):
+    if a.shape[0] % 2 == 0 and not isHermitian(a):
         h = a.T @ a
         b = a.T @ b
         return h, b / np.sqrt(np.sum(b**2))
@@ -33,6 +33,7 @@ def UMatrix(a: np.ndarray, t=np.pi, debug: bool = False):
     for i in range(w.size):
         uDiag[i, i] = np.exp(t * w[i] * 1j)
     U: np.ndarray = v @ uDiag @ v.T
+    U = np.around(U, 12)
 
     if debug:
         print('V', v)
