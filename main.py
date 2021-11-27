@@ -11,14 +11,17 @@ import hhl
 
 
 def main():
+    start = datetime.now()
+    print("Start: ", start)
+
     A = np.array([[1, 1 / 2],
                   [1 / 2, 1]])
     b = np.array([[1], [0]])
 
-    A2 = np.array([[4, -1, -1, -1],
-                   [-1, 4, -1, -1],
-                   [-1, -1, -1, -1],
-                   [-1, -1, -1, 4]])
+    A2 = np.array([[4, 1, 1, 1],
+                   [1, 4, 1, 1],
+                   [1, 1, 4, 1],
+                   [1, 1, 1, 4]])
 
     b2 = np.array([[4], [1], [9], [3]])
 

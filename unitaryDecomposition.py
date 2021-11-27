@@ -95,7 +95,6 @@ def UMatrix(a: np.ndarray, t=np.pi, debug: bool = False):
         print('V', v)
         print('Udiag', uDiag)
         print('U', U)
-
     return U, w
 
 

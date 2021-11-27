@@ -44,7 +44,10 @@ def create_qft_inverse(size: int, printCircuit=False):
 
 
 def rY_roation(eigTilde, C):
-    return 2 * np.arcsin(C / eigTilde)
+    # print(str(2) + " * np.arcsin(" + str(C) + " / " + str(eigTilde) + ")")
+    theta = 2 * np.arcsin(C / eigTilde)
+    # print(theta)
+    return theta
 
 
 def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
@@ -74,7 +77,8 @@ def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
     CU = CUGate(Umatrix)  # DeprecationWarning!
     CU_Inverse = CUGateInverse(Umatrix)  # DeprecationWarning!
     circuit.barrier()
-
+    # for i in range(bRegister.size):
+    #     circuit.measure(bRegister[i], measurement[i + 1])
     # ---------QPE------------
     circuit.h(cRegister)
 
@@ -87,7 +91,8 @@ def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
     circuit.append(inv_qft, cRegister)
     print("Eigenvalues: " + str(eigs))
     # ---------RY-------------
-    eigTilde = (eigs * t / (2 * np.pi)) * 2 ** cRegister.size
+    eigTilde = np.abs((eigs * t / (2 * np.pi)) * 2 ** cRegister.size)
+    print(eigTilde)
     C = np.min(eigTilde)  # Serching somehow for min... NOT GOOD
 
     for i in range(cRegister.size):
