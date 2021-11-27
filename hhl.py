@@ -47,7 +47,7 @@ def rY_roation(eigTilde, C):
     return 2 * np.arcsin(C / eigTilde)
 
 
-def hhl(A, b, t, printCircuit: bool = False):
+def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
     # Ensure A is hermitian and b is normalized.
     A, b = MatToEvenHermitian(A, b)
 
@@ -82,9 +82,6 @@ def hhl(A, b, t, printCircuit: bool = False):
         for i in range(np.power(2, k)):
             circuit.append(CU, [cRegister[k], *bRegister])
 
-    # circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[0], bRegister)
-    # circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[1], bRegister)
-    # circuit.cu(np.pi, 3*np.pi/2, 5*np.pi/2, 0, cRegister[1], bRegister)
     # IQFT
     inv_qft = create_qft_inverse(cRegister.size, printCircuit)
     circuit.append(inv_qft, cRegister)
@@ -101,10 +98,10 @@ def hhl(A, b, t, printCircuit: bool = False):
     _qft = create_qft(cRegister.size, printCircuit)
     circuit.append(_qft, cRegister)
 
+    for k in range(cRegister.size):
+        for i in range(np.power(2, cRegister.size - 1 - k)):
+            circuit.append(CU.inverse(), [cRegister[cRegister.size - 1 - k], *bRegister])
     circuit.h(cRegister)
-    for k in range(cRegister.size()):
-        for i in range(cRegister.size() - 1 - k):
-            circuit.append(CU.inverse(), [cRegister[i], bRegister])
 
     # Measurements-----------------
     circuit.measure(ancillaRegister, measurement[0])
