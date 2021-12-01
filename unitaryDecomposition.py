@@ -98,9 +98,9 @@ def UMatrix(a: np.ndarray, t=np.pi, debug: bool = False):
 
 # Gate caching
 cachedU: UnitaryGate
-cachedUInput: np.ndarray
+cachedUInput: np.ndarray = np.array([])
 cachedUInverse: UnitaryGate
-cachedUInverseInput: np.ndarray
+cachedUInverseInput: np.ndarray = np.array([])
 
 cachedCU: UnitaryGate
 cachedCUInput: np.ndarray = np.array([])

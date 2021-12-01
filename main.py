@@ -37,51 +37,55 @@ def main():
     # A = x_filip.reshape((-1, 1)) ** np.arange(11)
     # b = y_filip[..., None]
     #
-    A = np.array([[7, 9],
-                  [1, 3]])
-    b = np.array([[4], [6]])
+    #A = np.array([[7, 9],
+    #              [1, 3]])
+    #b = np.array([[4], [6]])
     #A = np.array([[2, 7, 8],
     #              [4, 5, 2],
     #              [3, 1, 6]])
     #b = np.array([[4], [6], [23]])
 
-    H, b2 = MatToEvenHermitian(A, b)
-    # b2 = np.array([[34], [54]])
-    # b2 = b2 / np.linalg.norm(b)
+    A = np.array([[1, 4],
+                  [3.5, 2]])
+    b = np.array([[2.1], [1.2]])
 
-    print("H:", H)
-    print("b:", b2)
-
-    qiskitsHHL = HHL()
-    hhlCircuit = qiskitsHHL.construct_circuit(H, b2)
-    ancillaRegister = hhlCircuit.qregs[-1]
-    bRegister = hhlCircuit.qregs[0]
-    m_register = ClassicalRegister(ancillaRegister.size + bRegister.size)
-
-    hhlCircuit.add_register(m_register)
-    hhlCircuit.measure(ancillaRegister, 0)
-    hhlCircuit.measure(bRegister, range(1, bRegister.size + 1))
-    hhlCircuit.draw(output='mpl').show()
-    # solution = qiskitsHHL.solve(A, b)
-    # print(solution)
-
-    backend = Aer.get_backend('aer_simulator')
-    t_circuit = transpile(hhlCircuit, backend)
-    result = backend.run(t_circuit, shots=8192).result()
-    counts = result.get_counts()
-    filteredCounts = dict()
-    for key, value in counts.items():
-        if key[len(key) - 1] == '1':
-            filteredCounts[key] = value
-    print(counts)
-    print(filteredCounts)
-    if len(filteredCounts):
-        plot_histogram(filteredCounts).show()
-    else:
-        print("ANCILLA BIT NEVER 1")
-    plot_histogram(counts).show()
-
-    exit()
+    #H, b2 = MatToEvenHermitian(A, b)
+    ## b2 = np.array([[34], [54]])
+    ## b2 = b2 / np.linalg.norm(b)
+#
+    #print("H:", H)
+    #print("b:", b2)
+#
+    #qiskitsHHL = HHL(expectation=[0.5499, 0.4501])
+    #hhlCircuit = qiskitsHHL.construct_circuit(H, b2)
+    #ancillaRegister = hhlCircuit.qregs[-1]
+    #bRegister = hhlCircuit.qregs[0]
+    #m_register = ClassicalRegister(ancillaRegister.size + bRegister.size)
+#
+    #hhlCircuit.add_register(m_register)
+    #hhlCircuit.measure(ancillaRegister, 0)
+    #hhlCircuit.measure(bRegister, range(1, bRegister.size + 1))
+    #hhlCircuit.draw(output='mpl').show()
+    ## solution = qiskitsHHL.solve(A, b)
+    ## print(solution)
+#
+    #backend = Aer.get_backend('aer_simulator')
+    #t_circuit = transpile(hhlCircuit, backend)
+    #result = backend.run(t_circuit, shots=8192).result()
+    #counts = result.get_counts()
+    #filteredCounts = dict()
+    #for key, value in counts.items():
+    #    if key[len(key) - 1] == '1':
+    #        filteredCounts[key] = value
+    #print(counts)
+    #print(filteredCounts)
+    #if len(filteredCounts):
+    #    plot_histogram(filteredCounts).show()
+    #else:
+    #    print("ANCILLA BIT NEVER 1")
+    #plot_histogram(counts).show()
+#
+    #exit()
 
     circuit = hhl.hhl(A, b, t=np.pi, printCircuit=True)
 

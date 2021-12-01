@@ -2,7 +2,7 @@ import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, AncillaRegister
 from qiskit.extensions import UnitaryGate
 from divideAndConquer import DivideAndConquer
-from unitaryDecomposition import CUGate, CUGateInverse, UMatrix, MatToEvenHermitian
+from unitaryDecomposition import CUGate, CUGateInverse, UMatrix, MatToEvenHermitian, UGateInverse
 
 
 def qft(qc: QuantumCircuit, qr: QuantumRegister):
