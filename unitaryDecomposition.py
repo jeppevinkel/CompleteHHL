@@ -20,7 +20,6 @@ def getNextN(matrix: np.ndarray):
 
 def MatToEvenHermitian(a: np.ndarray, b: np.ndarray):
     assert a.ndim == 2, "The A matrix needs to be 2 dimensional!"
-    b = b / np.linalg.norm(b)
 
     if isHermitian(a) and a.shape[0] % 2 == 0:
         print("PERFECTION")

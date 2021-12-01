@@ -1,5 +1,6 @@
 import numpy as np
 from qiskit import IBMQ, Aer, transpile, assemble
+from qiskit.circuit.library.arithmetic.exact_reciprocal import ExactReciprocal
 from qiskit.providers.ibmq import least_busy
 from qiskit.tools.monitor import job_monitor
 from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
@@ -19,7 +20,7 @@ def main():
 
     A = np.array([[1, 1 / 2],
                   [1 / 2, 1]])
-    b = np.array([[1], [0]])
+    b = np.array([[3.5], [5.2]])
 
     A2 = np.array([[4, 1, 1, 1],
                    [1, 4, 1, 1],
