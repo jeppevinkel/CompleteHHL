@@ -20,7 +20,6 @@ def getNextN(matrix: np.ndarray):
 
 def MatToEvenHermitian(a: np.ndarray, b: np.ndarray):
     assert a.ndim == 2, "The A matrix needs to be 2 dimensional!"
-    b = b / np.linalg.norm(b)
 
     if isHermitian(a) and a.shape[0] % 2 == 0:
         print("PERFECTION")
@@ -32,17 +31,16 @@ def MatToEvenHermitian(a: np.ndarray, b: np.ndarray):
             b = np.append(b, np.array([b[-1]]), axis=0)
 
     if not isHermitian(a) and a.shape[0] == a.shape[1]:
-        print("A", a)
-        print("b", b)
+        # print("A", a)
+        # print("b", b)
 
-        a = a.T @ a
         b = a.T @ b
-
-        print("A", a)
-        print("b", b)
+        a = a.T @ a
+        # print("A", a)
+        # print("b", b)
         return a, b / np.linalg.norm(b)
 
-    print("A.shape:", a.shape)
+    # print("A.shape:", a.shape)
 
     at = a.T
     ht = np.hstack((np.zeros((a.shape[0], at.shape[1])), a))
@@ -51,8 +49,8 @@ def MatToEvenHermitian(a: np.ndarray, b: np.ndarray):
     h = np.vstack((ht, hb))
     b = np.vstack((b, np.zeros((h.shape[0] - b.shape[0], 1))))
 
-    print(h)
-    print(b)
+    # print(h)
+    # print(b)
 
     return h, b / np.linalg.norm(b)
 
