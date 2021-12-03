@@ -1,14 +1,3 @@
-import numpy as np
-from qiskit import IBMQ, Aer, transpile, assemble
-from qiskit.circuit.library.arithmetic.exact_reciprocal import ExactReciprocal
-from qiskit.providers.ibmq import least_busy
-from qiskit.tools.monitor import job_monitor
-from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
-from qiskit.circuit.library.standard_gates import RYGate
-from qiskit.visualization import plot_histogram, plot_bloch_multivector
-from qiskit.circuit import Qubit
-from qiskit.algorithms.linear_solvers import HHL
-from qiskit.algorithms.linear_solvers.observables import MatrixFunctional
 from datetime import datetime
 from tests import Tests
 

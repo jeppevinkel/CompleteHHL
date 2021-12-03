@@ -1,6 +1,5 @@
 import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, AncillaRegister
-from qiskit.extensions import UnitaryGate
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from divideAndConquer import DivideAndConquer
 from unitaryDecomposition import CUGate, CUGateInverse, UMatrix, MatToEvenHermitian
 
@@ -75,16 +74,18 @@ def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
     CU = CUGate(Umatrix)  # DeprecationWarning!
     CU_Inverse = CUGateInverse(Umatrix)  # DeprecationWarning!
     circuit.barrier()
+
+    # Uncomment the two lines below to measure the b vector to see if it is loaded correctly
     # for i in range(bRegister.size):
     #     circuit.measure(bRegister[i], measurement[i + 1])
+
     # ---------QPE------------
     circuit.h(cRegister)
 
     for k in range(cRegister.size):
         for i in range(np.power(2, k)):
             circuit.append(CU, [cRegister[k], *bRegister])
-
-    # IQFT
+    #IQFT
     inv_qft = create_qft_inverse(cRegister.size, printCircuit)
     circuit.append(inv_qft, cRegister)
 

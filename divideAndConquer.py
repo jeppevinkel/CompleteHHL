@@ -1,8 +1,6 @@
 import numpy as np
-from qiskit import IBMQ, Aer, transpile, assemble
 from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
 from qiskit.circuit.library.standard_gates import RYGate
-from qiskit.visualization import plot_histogram
 
 
 def level(index):
