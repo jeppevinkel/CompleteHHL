@@ -28,7 +28,6 @@ def create_qft(size: int, printCircuit=False):
     if printCircuit:
         plot = qc.draw(output='mpl')
         plot.show()
-        print(qc.draw())
     return qc
 
 
@@ -39,7 +38,6 @@ def create_qft_inverse(size: int, printCircuit=False):
     if printCircuit:
         plot = qc.draw(output='mpl')
         plot.show()
-        print(qc.draw())
     return qc
 
 
@@ -89,10 +87,11 @@ def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
     # IQFT
     inv_qft = create_qft_inverse(cRegister.size, printCircuit)
     circuit.append(inv_qft, cRegister)
-    print("Eigenvalues: " + str(eigs))
+
     # ---------RY-------------
     eigTilde = np.abs((eigs * t / (2 * np.pi)) * 2 ** cRegister.size)
-    print(eigTilde)
+    if printCircuit:
+        print('Encoded eigen values', eigTilde)
     C = np.min(eigTilde)  # Serching somehow for min... NOT GOOD
 
     for i in range(cRegister.size):
@@ -104,7 +103,6 @@ def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
     # QFT
     _qft = create_qft(cRegister.size, printCircuit)
     circuit.append(_qft, cRegister)
-    print(cRegister.size)
     for k in range(cRegister.size):
         for i in range(np.power(2, cRegister.size - 1 - k)):
             circuit.append(CU_Inverse, [cRegister[cRegister.size - 1 - k], *bRegister])
@@ -117,8 +115,7 @@ def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
         circuit.measure(bRegister[i], measurement[i + 1])
 
     # HHL finished!-------------------------
-    if printCircuit == True:
+    if printCircuit:
         circuit.draw(output='mpl').show()
-        print(circuit.draw())
 
     return circuit
