@@ -1,5 +1,4 @@
-import numpy as np
-from scipy.linalg import lu_factor, lu_solve
+import scipy.linalg
 
 def LUsolve(data, n):
     """
@@ -12,6 +11,6 @@ def LUsolve(data, n):
     C = A.T @ A
     c = A.T @ y_data
 
-    (lu, piv) = lu_factor(C)
-    x = lu_solve((lu, piv), c)
+    (lu, piv) = scipy.linalg.lu_factor(C)
+    x = scipy.linalg.lu_solve((lu, piv), c)
     return x

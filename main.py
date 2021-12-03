@@ -1,5 +1,5 @@
 from datetime import datetime
-from tests import Tests
+from tests import Tests, Test
 
 r""" Guide for using this program:
 We have implemented a Tests class that can run a testxx, defined in the class itself. A test consists of an A matrix and
@@ -9,6 +9,7 @@ The runQiskitTest(testxx) method attempts to solve for x in Ax=b, using Qiskit's
 in https://qiskit.org/documentation/stubs/qiskit.algorithms.HHL.html?highlight=hhl#qiskit.algorithms.HHL.
 """
 
+
 def main():
     start = datetime.now()
     print("Start: ", start, '\n')
@@ -16,10 +17,13 @@ def main():
     testClass = Tests()
 
     print('Test using our implementation')
-    testClass.runTest(testClass.test01)
+    testClass.run_test(test)
 
-    print('\nTest sing the Qiskit implementation')
-    testClass.runQiskitTest(testClass.test01)
+    print('\nTest using the Qiskit implementation')
+    testClass.run_qiskit_test(test)
+
+    print('\nTest using the classical implementation')
+    testClass.run_classical_test(test)
 
     end = datetime.now()
     print("\nExecution time: ", end - start)

@@ -7,11 +7,11 @@ import hhl
 
 
 def filip_data():
-    filip_data = np.loadtxt('Filip.dat', skiprows=60)
-    assert filip_data.shape == (82, 2)
+    data = np.loadtxt('Filip.dat', skiprows=60)
+    assert data.shape == (82, 2)
 
-    y_filip, x_filip = filip_data.T
-    A = x_filip.reshape((-1, 1)) ** np.arange(11)
+    y_filip, x_filip = data.T
+    a = x_filip.reshape((-1, 1)) ** np.arange(11)
     b = y_filip[..., None]
     return Test(A, b, 'Filip')
 
@@ -40,42 +40,41 @@ class Tests:
     def __init__(self, debug=False):
         self.debug = debug
 
-    def runTests(self):
-        print("Test 01")
-        self.runTest(self.test01)
-        print("Test 02")
-        self.runTest(self.test02)
-        print("Test 03")
-        self.runTest(self.test03)
-        print("Test 04")
-        self.runTest(self.test04)
-        return 1
-
     # runs a test defined by a Test class using our circuit implementation
-    def runTest(self, test: Test):
-        circuit = hhl.hhl(test.A, test.b, t=np.pi, printCircuit=self.debug)
-        self.runSimulation(circuit, test.name, 'our')
+    def run_test(self, test: Test):
+        circuit = hhl.hhl(test.A, test.b, t=np.pi, print_circuit=self.debug)
+        self.run_simulation(circuit, test.name, 'our')
 
     # runs a test defined by a Test class using the implementation built into Qiskit
-    def runQiskitTest(self, test: Test):
+    def run_qiskit_test(self, test: Test):
         circuit = return_qiskit_circuit(test.A, test.b)
-        self.runSimulation(circuit, test.name, 'qiskit')
+        self.run_simulation(circuit, test.name, 'qiskit')
+
+    @staticmethod
+    def run_classical_test(test: Test):
+        x = lu.lu_solve(test.A, test.b)
+        print('Classical solution of', test.name)
+        print("LU decomp. solution:\n", x)
+        print("\nExpected filtered measurement result (according to LU decomp.):\n", np.power(x/np.linalg.norm(x), 2))
 
     # runs a simulation using a HHL circuit assuming LSB is the ancilla bit
-    def runSimulation(self, circuit: QuantumCircuit, testName: str, implementation: str):
+    @staticmethod
+    def run_simulation(circuit: QuantumCircuit, test_name: str, implementation: str):
         backend = Aer.get_backend('aer_simulator')
         t_circuit = transpile(circuit, backend)
         result = backend.run(t_circuit, shots=4096).result()
         counts = result.get_counts()
-        filteredCounts = dict()
+        filtered_counts = dict()
         for key, value in counts.items():
             if key[len(key) - 1] == '1':
-                filteredCounts[key] = value
+                filtered_counts[key] = value
         print('Counts', counts)
-        print('Filtered counts', filteredCounts)
-        if len(filteredCounts):
-            plot_histogram(filteredCounts,
-                           title='filtered ' + testName + ', ' + implementation + ' implementation').show()
+        print('Filtered counts', filtered_counts)
+        if len(filtered_counts):
+            plot_histogram(filtered_counts,
+                           title='filtered ' + test_name + ', ' + implementation + ' implementation').show()
+            results = np.array(list(filtered_counts.values()))
+            print('Result:', results/np.sum(results))
         else:
             print("ANCILLA BIT NEVER 1")
-        plot_histogram(counts, title='unfiltered ' + testName + ', ' + implementation + ' implementation').show()
+        plot_histogram(counts, title='unfiltered ' + test_name + ', ' + implementation + ' implementation').show()
