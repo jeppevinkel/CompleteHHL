@@ -132,7 +132,6 @@ class DivideAndConquer:
             if j == 0:
                 circuit.ry(k, angles[j])
             else:
-                print("level: " + str(j))
                 myGate = RYGate(angles[k]).control(j)
                 circuit.append(myGate, range(0, j + 1))
 
@@ -144,7 +143,6 @@ class DivideAndConquer:
 
         angles = gen_angles(np.abs(vector))
         register = self.divide_and_conquer(angles)
-        print(vector.size)
         # self.circuit.draw(output='mpl').show()
         return register
 

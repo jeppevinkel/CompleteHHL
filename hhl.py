@@ -43,10 +43,8 @@ def create_qft_inverse(size: int, printCircuit=False):
     return qc
 
 
-def rY_roation(eigTilde, C):
-    # print(str(2) + " * np.arcsin(" + str(C) + " / " + str(eigTilde) + ")")
+def ry_rotation(eigTilde, C):
     theta = 2 * np.arcsin(C / eigTilde)
-    # print(theta)
     return theta
 
 
@@ -91,20 +89,19 @@ def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
     circuit.append(inv_qft, cRegister)
     print("Eigenvalues: " + str(eigs))
     # ---------RY-------------
-    eigTilde = np.abs((eigs * t / (2 * np.pi)) * 2 ** cRegister.size)
-    print(eigTilde)
-    C = np.min(eigTilde)  # Serching somehow for min... NOT GOOD
+    eigTilde = (eigs * t / (2 * np.pi)) * 2 ** cRegister.size
+    print("Encoded eigenvalues: ", eigTilde)
+    C = np.min(np.abs(eigTilde))  # Serching somehow for min... NOT GOOD
 
     for i in range(cRegister.size):
         # circuit.cry(rY_roation(eigTilde[i], C), cRegister[i], ancillaRegister)
-        circuit.cry(rY_roation(eigTilde[cRegister.size - 1 - i], C), cRegister[i], ancillaRegister)
+        circuit.cry(ry_rotation(eigTilde[cRegister.size - 1 - i], C), cRegister[i], ancillaRegister)
     circuit.measure(ancillaRegister, measurement[0])
 
     # --------IQPE-------------
     # QFT
     _qft = create_qft(cRegister.size, printCircuit)
     circuit.append(_qft, cRegister)
-    print(cRegister.size)
     for k in range(cRegister.size):
         for i in range(np.power(2, cRegister.size - 1 - k)):
             circuit.append(CU_Inverse, [cRegister[cRegister.size - 1 - k], *bRegister])
