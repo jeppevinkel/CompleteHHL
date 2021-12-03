@@ -52,36 +52,36 @@ def main():
     print("H:", H)
     print("b:", b2)
 
-    qiskitsHHL = HHL()
-    hhlCircuit = qiskitsHHL.construct_circuit(H, b2)
-    ancillaRegister = hhlCircuit.qregs[-1]
-    bRegister = hhlCircuit.qregs[0]
-    m_register = ClassicalRegister(ancillaRegister.size + bRegister.size)
+#    qiskitsHHL = HHL()
+#    hhlCircuit = qiskitsHHL.construct_circuit(H, b2)
+#    ancillaRegister = hhlCircuit.qregs[-1]
+#    bRegister = hhlCircuit.qregs[0]
+#    m_register = ClassicalRegister(ancillaRegister.size + bRegister.size)
 
-    hhlCircuit.add_register(m_register)
-    hhlCircuit.measure(ancillaRegister, 0)
-    hhlCircuit.measure(bRegister, range(1, bRegister.size + 1))
-    hhlCircuit.draw(output='mpl').show()
+#    hhlCircuit.add_register(m_register)
+#    hhlCircuit.measure(ancillaRegister, 0)
+#    hhlCircuit.measure(bRegister, range(1, bRegister.size + 1))
+#    hhlCircuit.draw(output='mpl').show()
     # solution = qiskitsHHL.solve(A, b)
     # print(solution)
 
-    backend = Aer.get_backend('aer_simulator')
-    t_circuit = transpile(hhlCircuit, backend)
-    result = backend.run(t_circuit, shots=8192).result()
-    counts = result.get_counts()
-    filteredCounts = dict()
-    for key, value in counts.items():
-        if key[len(key) - 1] == '1':
-            filteredCounts[key] = value
-    print(counts)
-    print(filteredCounts)
-    if len(filteredCounts):
-        plot_histogram(filteredCounts).show()
-    else:
-        print("ANCILLA BIT NEVER 1")
-    plot_histogram(counts).show()
-
-    exit()
+#    backend = Aer.get_backend('aer_simulator')
+#    t_circuit = transpile(hhlCircuit, backend)
+#    result = backend.run(t_circuit, shots=8192).result()
+#    counts = result.get_counts()
+#    filteredCounts = dict()
+#    for key, value in counts.items():
+#        if key[len(key) - 1] == '1':
+#            filteredCounts[key] = value
+#    print(counts)
+#    print(filteredCounts)
+#    if len(filteredCounts):
+#        plot_histogram(filteredCounts).show()
+#    else:
+#        print("ANCILLA BIT NEVER 1")
+#    plot_histogram(counts).show()
+#
+    #exit()
 
     circuit = hhl.hhl(A, b, t=np.pi, printCircuit=True)
 
