@@ -2,6 +2,7 @@ import numpy as np
 from qiskit import Aer, transpile, QuantumCircuit
 from qiskit.visualization import plot_histogram
 from qiskitImplementation import return_qiskit_circuit
+import lu
 
 import hhl
 
@@ -13,7 +14,7 @@ def filip_data():
     y_filip, x_filip = data.T
     a = x_filip.reshape((-1, 1)) ** np.arange(11)
     b = y_filip[..., None]
-    return Test(A, b, 'Filip')
+    return Test(a, b, 'Filip')
 
 
 class Test:

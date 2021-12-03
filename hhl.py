@@ -40,7 +40,7 @@ def create_qft_inverse(size: int, print_circuit=False):
     return qc
 
 
-def rY_roation(eigTilde, C):
+def ry_rotation(eig_tilde, c):
     # print(str(2) + " * np.arcsin(" + str(C) + " / " + str(eigTilde) + ")")
     theta = 2 * np.arcsin(c / eig_tilde)
     # print(theta)
