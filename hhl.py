@@ -1,8 +1,7 @@
 import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, AncillaRegister
-from qiskit.extensions import UnitaryGate
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from divideAndConquer import DivideAndConquer
-from unitaryDecomposition import CUGate, CUGateInverse, UMatrix, MatToEvenHermitian, UGateInverse
+from unitaryDecomposition import cu_gate, cu_gate_inverse, u_matrix, mat_to_even_hermitian
 
 
 def qft(qc: QuantumCircuit, qr: QuantumRegister):
@@ -20,102 +19,104 @@ def qft(qc: QuantumCircuit, qr: QuantumRegister):
             i += 1
 
 
-def create_qft(size: int, printCircuit=False):
+def create_qft(size: int, print_circuit=False):
     qr = QuantumRegister(size)
     qc = QuantumCircuit(qr, name="qft")
     qft(qc, qr)
 
-    if printCircuit:
+    if print_circuit:
         plot = qc.draw(output='mpl')
         plot.show()
-        print(qc.draw())
     return qc
 
 
-def create_qft_inverse(size: int, printCircuit=False):
+def create_qft_inverse(size: int, print_circuit=False):
     qc = create_qft(size).inverse()
     qc.name = "inv_qft"
 
-    if printCircuit:
+    if print_circuit:
         plot = qc.draw(output='mpl')
         plot.show()
-        print(qc.draw())
     return qc
 
 
-def ry_rotation(eigTilde, C):
-    theta = 2 * np.arcsin(C / eigTilde)
+def ry_rotation(eig_tilde, c):
+    # print(str(2) + " * np.arcsin(" + str(C) + " / " + str(eigTilde) + ")")
+    theta = 2 * np.arcsin(c / eig_tilde)
+    # print(theta)
     return theta
 
 
-def hhl(A, b: np.ndarray, t=np.pi, printCircuit: bool = False):
+def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
     # Ensure A is hermitian and b is normalized.
-    A, b = MatToEvenHermitian(A, b)
+    A, b = mat_to_even_hermitian(A, b)
     circuit = QuantumCircuit()
-    ancillaRegister = QuantumRegister(1, name='ancilla')
-    cRegister = QuantumRegister(A.shape[0], name='clock')
-    divideAndConquer = DivideAndConquer(circuit)
-    usingDivide: bool = False
+    ancilla_register = QuantumRegister(1, name='ancilla')
+    c_register = QuantumRegister(A.shape[0], name='clock')
+    divide_and_conquer = DivideAndConquer(circuit)
+    using_divide: bool = False
     if b.size == 2:
-        bRegister = QuantumRegister(1, name='b')
-        circuit.add_register(bRegister)
+        b_register = QuantumRegister(1, name='b')
+        circuit.add_register(b_register)
         theta = np.arccos(b[0])
-        circuit.ry(theta * 2, bRegister)
+        circuit.ry(theta * 2, b_register)
     else:
-        divideAndConquer.loadB(b)
-        bRegister = divideAndConquer.measurePoints
-        usingDivide = True
-    measurement = ClassicalRegister(bRegister.size + 2, name='measurement')
+        divide_and_conquer.load_b(b)
+        b_register = divide_and_conquer.measurePoints
+        using_divide = True
+    measurement = ClassicalRegister(b_register.size + 1, name='measurement')
 
-    circuit.add_register(ancillaRegister)
-    circuit.add_register(cRegister)
+    circuit.add_register(ancilla_register)
+    circuit.add_register(c_register)
     circuit.add_register(measurement)
 
-    Umatrix, eigs = UMatrix(A, t=t, debug=printCircuit)
-    CU = CUGate(Umatrix)  # DeprecationWarning!
-    CU_Inverse = CUGateInverse(Umatrix)  # DeprecationWarning!
+    Umatrix, eigs = u_matrix(A, t=t, debug=print_circuit)
+    CU = cu_gate(Umatrix)  # DeprecationWarning!
+    CU_Inverse = cu_gate_inverse(Umatrix)  # DeprecationWarning!
     circuit.barrier()
+
+    # Uncomment the two lines below to measure the b vector to see if it is loaded correctly
     # for i in range(bRegister.size):
     #     circuit.measure(bRegister[i], measurement[i + 1])
+
     # ---------QPE------------
-    circuit.h(cRegister)
+    circuit.h(c_register)
 
-    for k in range(cRegister.size):
+    for k in range(c_register.size):
         for i in range(np.power(2, k)):
-            circuit.append(CU, [cRegister[k], *bRegister])
+            circuit.append(CU, [c_register[k], *b_register])
+    #IQFT
+    inv_qft = create_qft_inverse(c_register.size, print_circuit)
+    circuit.append(inv_qft, c_register)
 
-    # IQFT
-    inv_qft = create_qft_inverse(cRegister.size, printCircuit)
-    circuit.append(inv_qft, cRegister)
-    print("Eigenvalues: " + str(eigs))
     # ---------RY-------------
-    eigTilde = (eigs * t / (2 * np.pi)) * 2 ** cRegister.size
-    print("Encoded eigenvalues: ", eigTilde)
-    C = np.min(np.abs(eigTilde))  # Serching somehow for min... NOT GOOD
+    eigTilde = np.abs((eigs * t / (2 * np.pi)) * 2 ** c_register.size)
+    if print_circuit:
+        print('Encoded eigen values', eigTilde)
+    C = np.min(eigTilde)  # Serching somehow for min... NOT GOOD
 
-    for i in range(cRegister.size):
+    for i in range(c_register.size):
         # circuit.cry(rY_roation(eigTilde[i], C), cRegister[i], ancillaRegister)
-        circuit.cry(ry_rotation(eigTilde[cRegister.size - 1 - i], C), cRegister[i], ancillaRegister)
-    circuit.measure(ancillaRegister, measurement[0])
+        circuit.cry(ry_rotation(eigTilde[c_register.size - 1 - i], C), c_register[i], ancilla_register)
+    circuit.measure(ancilla_register, measurement[0])
 
     # --------IQPE-------------
     # QFT
-    _qft = create_qft(cRegister.size, printCircuit)
-    circuit.append(_qft, cRegister)
-    for k in range(cRegister.size):
-        for i in range(np.power(2, cRegister.size - 1 - k)):
-            circuit.append(CU_Inverse, [cRegister[cRegister.size - 1 - k], *bRegister])
+    _qft = create_qft(c_register.size, print_circuit)
+    circuit.append(_qft, c_register)
+    for k in range(c_register.size):
+        for i in range(np.power(2, c_register.size - 1 - k)):
+            circuit.append(CU_Inverse, [c_register[c_register.size - 1 - k], *b_register])
 
     circuit.barrier()
-    circuit.h(cRegister)
+    circuit.h(c_register)
 
     # Measurements-----------------
-    for i in range(bRegister.size):
-        circuit.measure(bRegister[i], measurement[i + 1])
+    for i in range(b_register.size):
+        circuit.measure(b_register[i], measurement[i + 1])
 
     # HHL finished!-------------------------
-    if printCircuit == True:
+    if print_circuit:
         circuit.draw(output='mpl').show()
-        print(circuit.draw())
 
     return circuit
