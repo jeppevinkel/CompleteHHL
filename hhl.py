@@ -58,8 +58,10 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
     if b.size == 2:
         b_register = QuantumRegister(1, name='b')
         circuit.add_register(b_register)
-        theta = np.arccos(b[0])
-        circuit.ry(theta * 2, b_register)
+        theta = 2 * np.arccos(b[0])
+        print("B", b)
+        print("Theta", theta)
+        circuit.ry(theta, b_register)
     else:
         divide_and_conquer.load_b(b)
         b_register = divide_and_conquer.measurePoints
@@ -91,10 +93,13 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
 
     # ---------RY-------------
     eigTilde = np.abs((eigs * t / (2 * np.pi)) * 2 ** c_register.size)
+    condition_number = np.abs(np.max(eigs)) / np.abs(np.min(eigs))  # Serching... NOT GOOD
     if print_circuit:
         print("A", A)
         print('Encoded eigen values', eigTilde)
-    C = np.min(eigTilde)  # Serching somehow for min... NOT GOOD
+        print("Condition number:", condition_number)
+        print("Condition number:", np.linalg.cond(A))
+    C = 1 / condition_number
 
     for i in range(c_register.size):
         # circuit.cry(rY_roation(eigTilde[i], C), cRegister[i], ancillaRegister)
