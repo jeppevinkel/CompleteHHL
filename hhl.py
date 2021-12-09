@@ -117,6 +117,9 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
 
     # HHL finished!-------------------------
     if print_circuit:
-        circuit.draw(output='mpl').show()
+        try:
+            circuit.draw(output='mpl').show()
+        except:
+            print('Error: Could not draw circuit')
 
     return circuit
