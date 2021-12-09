@@ -76,8 +76,8 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
     circuit.barrier()
 
     # Uncomment the two lines below to measure the b vector to see if it is loaded correctly
-    # for i in range(bRegister.size):
-    #     circuit.measure(bRegister[i], measurement[i + 1])
+    # for i in range(b_register.size):
+    #     circuit.measure(b_register[i], measurement[i + 1])
 
     # ---------QPE------------
     circuit.h(c_register)
@@ -85,13 +85,14 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
     for k in range(c_register.size):
         for i in range(np.power(2, k)):
             circuit.append(CU, [c_register[k], *b_register])
-    #IQFT
+    # IQFT
     inv_qft = create_qft_inverse(c_register.size, print_circuit)
     circuit.append(inv_qft, c_register)
 
     # ---------RY-------------
     eigTilde = np.abs((eigs * t / (2 * np.pi)) * 2 ** c_register.size)
     if print_circuit:
+        print("A", A)
         print('Encoded eigen values', eigTilde)
     C = np.min(eigTilde)  # Serching somehow for min... NOT GOOD
 
@@ -117,6 +118,9 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
 
     # HHL finished!-------------------------
     if print_circuit:
-        circuit.draw(output='mpl').show()
+        try:
+            circuit.draw(output='mpl').show()
+        except:
+            print(circuit.draw(output='text'))
 
     return circuit

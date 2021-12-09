@@ -14,8 +14,8 @@ def main():
     start = datetime.now()
     print("Start: ", start, '\n')
 
-    testClass = Tests(debug=False)
-    test = testClass.test03
+    testClass = Tests(debug=True)
+    test = testClass.test01
 
     print('Test using our implementation')
     testClass.run_test(test)
