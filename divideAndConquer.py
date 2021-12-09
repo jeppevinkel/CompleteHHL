@@ -24,8 +24,9 @@ class DivideAndConquer:
         self.circuit.add_register(b_register)
         for k in range(n - 1):
             self.circuit.ry(angles[k], b_register[k])
-        for k in range(n - 1):
-            self.circuit.rz(angles_z[k], b_register[k])
+        if angles_z is not None:
+            for k in range(n - 1):
+                self.circuit.rz(angles_z[k], b_register[k])
 
         actual = n - 2
         while actual >= 0:
