@@ -93,9 +93,10 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
 
     # ---------RY-------------
     eigTilde = np.abs((eigs * t / (2 * np.pi)) * 2 ** c_register.size)
-    condition_number = np.abs(np.max(eigs)) / np.abs(np.min(eigs))  # Serching... NOT GOOD
+    condition_number = np.linalg.cond(A) #np.abs(np.max(eigs)) / np.abs(np.min(eigs))  # Serching... NOT GOOD
     if print_circuit:
         print("A", A)
+        print("b", b)
         print('Encoded eigen values', eigTilde)
         print("Condition number:", condition_number)
         print("Condition number:", np.linalg.cond(A))

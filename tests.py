@@ -38,7 +38,7 @@ class Tests:
 
     test03 = Test(np.array([[7, 9], [1, 3]]), np.array([[4, 6]]), 'Test03')
     test04 = Test(np.array([[2, 7, 8], [4, 5, 2], [3, 1, 6]]), np.array([[4], [6], [23]]), 'Test04')
-    test05 = Test(np.array([[1, 7], [9, 3]]), np.array([4, 6]), 'Test03')
+    test05 = Test(np.array([[1, 7], [9, 3]]), np.array([[4], [6]]), 'Test05')
     test_filip = filip_data()
 
     def __init__(self, debug=False):
@@ -52,6 +52,8 @@ class Tests:
     # runs a test defined by a Test class using the implementation built into Qiskit
     def run_qiskit_test(self, test: Test):
         circuit = return_qiskit_circuit(test.A, test.b)
+        if self.debug:
+            circuit.draw(output='mpl').show()
         self.run_simulation(circuit, test.name, 'qiskit')
 
     @staticmethod

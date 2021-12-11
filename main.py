@@ -15,7 +15,7 @@ def main():
     print("Start: ", start, '\n')
 
     testClass = Tests(debug=True)
-    test = testClass.test01
+    test = testClass.test05
 
     print('Test using our implementation')
     testClass.run_test(test)
