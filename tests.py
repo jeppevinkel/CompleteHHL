@@ -34,9 +34,7 @@ class Tests:
     test01 = Test(np.array([[1, 1 / 2], [1 / 2, 1]]), np.array([[1], [0]]), 'Test01')
     test02 = Test(np.array([[4, 1, 1, 1], [1, 4, 1, 1], [1, 1, 4, 1], [1, 1, 1, 4]]), np.array([[4], [1], [9], [3]]),
                   'Test02')
-
-
-    test03 = Test(np.array([[7, 9], [1, 3]]), np.array([[4, 6]]), 'Test03')
+    test03 = Test(np.array([[7, 9], [1, 3]]), np.array([[4], [6]]), 'Test03')
     test04 = Test(np.array([[2, 7, 8], [4, 5, 2], [3, 1, 6]]), np.array([[4], [6], [23]]), 'Test04')
     test05 = Test(np.array([[1, 7], [9, 3]]), np.array([[4], [6]]), 'Test05')
     test_filip = filip_data()
