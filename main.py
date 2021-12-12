@@ -14,17 +14,61 @@ def main():
     start = datetime.now()
     print("Start: ", start, '\n')
 
-    testClass = Tests(debug=False)
-    test = testClass.test01
+        testClass = Tests(debug=False)
 
-    print('Test using our implementation')
-    testClass.run_test(test)
+        for i, test in np.ndenumerate(testClass.tests):
+            print('Condition number:', i[0]+1)
 
-    print('\nTest using the Qiskit implementation')
-    testClass.run_qiskit_test(test)
+            q_tests = []
+            d = 0
+            num_nan = 0
 
-    print('\nTest using the classical implementation')
-    testClass.run_classical_test(test)
+            for _ in range(10):
+                # print('\nTest using the Qiskit implementation')
+                q_res = testClass.run_qiskit_test(test)
+                q_tests.append(q_res)
+
+            # print('\nTest using the classical implementation')
+            # c_res = testClass.run_classical_test(test)
+
+            # print("q_res", q_res)
+            # print("c_res", c_res)
+
+            for q_res in q_tests:
+                if q_res.size == 2 and not np.isnan(q_res[0]) and not np.isnan(q_res[1]):
+                    d = d + np.sqrt(np.power((q_res[0] - 0.5), 2) + np.power((q_res[1] - 0.5), 2))
+                else:
+                    # d = d + np.NaN
+                    # d = d + 1
+                    num_nan = num_nan + 1
+            size = (len(q_tests) - num_nan)
+            if size > 0:
+                d = d/(len(q_tests) - num_nan)
+            else:
+                d = np.NaN
+
+            rows.append([i[0]+1, d, num_nan])
+            error.append(d)
+            nan.append(num_nan)
+
+
+        test_writer.writerows(rows)
+
+        x_size = [*range(1, len(testClass.tests)+1)]
+        fig, x1 = plt.subplots()
+        x2 = x1.twinx()  # instantiate a second axes that shares the same x-axis
+
+        x1.plot(x_size, error, color='black', markerfacecolor='black', linestyle=':', marker='s')
+        x1.set_xlabel('Condition number')
+        x1.set_ylabel('Average error')
+
+        color = 'grey'
+        x2.set_ylabel('Times the measurement is invalid', color=color)  # we already handled the x-label with ax1
+        x2.bar([*range(1, len(testClass.tests)+1)], nan, color=color, alpha=0.150)
+        x2.tick_params(axis='y', labelcolor=color)
+
+        fig.tight_layout()  # otherwise the right y-label is slightly clipped
+        plt.show()
 
     end = datetime.now()
     print("\nExecution time: ", end - start)
