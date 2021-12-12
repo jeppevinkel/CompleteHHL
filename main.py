@@ -1,5 +1,10 @@
 from datetime import datetime
+
+import numpy as np
+import matplotlib.pyplot as plt
+
 from tests import Tests, Test
+import csv
 
 r""" Guide for using this program:
 We have implemented a Tests class that can run a testxx, defined in the class itself. A test consists of an A matrix and
@@ -13,6 +18,13 @@ in https://qiskit.org/documentation/stubs/qiskit.algorithms.HHL.html?highlight=h
 def main():
     start = datetime.now()
     print("Start: ", start, '\n')
+    with open('test_data.csv', mode='w', newline='') as test_file:
+        test_writer = csv.writer(test_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL, dialect='excel')
+        test_writer.writerow(['Condition number', 'Error', 'NaN count'])
+
+        rows: list = []
+        error: list = []
+        nan: list = []
 
         testClass = Tests(debug=False)
 
@@ -70,9 +82,9 @@ def main():
         fig.tight_layout()  # otherwise the right y-label is slightly clipped
         plt.show()
 
-    end = datetime.now()
-    print("\nExecution time: ", end - start)
-    print("End: ", end)
+        end = datetime.now()
+        print("\nExecution time: ", end - start)
+        print("End: ", end)
 
 
 if __name__ == '__main__':
