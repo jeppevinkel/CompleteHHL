@@ -31,12 +31,19 @@ class Test:
 class Tests:
     debug: bool
 
-    test01 = Test(np.array([[1, 1 / 2], [1 / 2, 1]]), np.array([[1], [0]]), 'Test01')
-    test02 = Test(np.array([[4, 1, 1, 1], [1, 4, 1, 1], [1, 1, 4, 1], [1, 1, 1, 4]]), np.array([[4], [1], [9], [3]]),
-                  'Test02')
-    test03 = Test(np.array([[7, 9], [1, 3]]), np.array([[4], [6]]), 'Test03')
-    test04 = Test(np.array([[2, 7, 8], [4, 5, 2], [3, 1, 6]]), np.array([[4], [6], [23]]), 'Test04')
-    test_filip = filip_data()
+    test1 = Test(np.array([[10, 0], [0, 10]]), np.array([[1], [1]]), 'test 1')
+    test2 = Test(np.array([[7.500000e+00, 2.500000e+00], [2.500000e+00, 7.500000e+00]]), np.array([[1], [1]]), 'test 2')
+    test3 = Test(np.array([[6.666667e+00, 3.333333e+00], [3.333333e+00, 6.666667e+00]]), np.array([[1], [1]]), 'test 3')
+    test4 = Test(np.array([[6.250000e+00, 3.750000e+00], [3.750000e+00, 6.250000e+00]]), np.array([[1], [1]]), 'test 4')
+    test5 = Test(np.array([[6, 4], [4, 6]]), np.array([[1], [1]]), 'test 5')
+    test6 = Test(np.array([[5.833333e+00, 4.166667e+00], [4.166667e+00, 5.833333e+00]]), np.array([[1], [1]]), 'test 6')
+    test7 = Test(np.array([[5.714286e+00, 4.285714e+00], [4.285714e+00, 5.714286e+00]]), np.array([[1], [1]]), 'test 7')
+    test8 = Test(np.array([[5.625000e+00, 4.375000e+00], [4.375000e+00, 5.625000e+00]]), np.array([[1], [1]]), 'test 8')
+    test9 = Test(np.array([[5.555556e+00, 4.444444e+00], [4.444444e+00, 5.555556e+00]]), np.array([[1], [1]]), 'test 9')
+    test10 = Test(np.array([[5.500000e+00, 4.500000e+00], [4.500000e+00, 5.500000e+00]]), np.array([[1], [1]]),
+                  'test 10')
+    test11 = Test(np.array([[5.454545e+00, 4.545455e+00], [4.545455e+00, 5.454545e+00]]), np.array([[1], [1]]),
+                  'test 11')
 
     def __init__(self, debug=False):
         self.debug = debug
