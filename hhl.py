@@ -1,5 +1,10 @@
+from cmath import isclose
+
 import numpy as np
+import qiskit.circuit.library.arithmetic.exact_reciprocal
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit.extensions.quantum_initializer import UCRYGate
+
 from divideAndConquer import DivideAndConquer
 from unitaryDecomposition import cu_gate, cu_gate_inverse, u_matrix, mat_to_even_hermitian
 
@@ -47,12 +52,27 @@ def ry_rotation(eig_tilde, c):
     return theta
 
 
+def get_delta(c_register_size: int, eig_min: float, eig_max: float):
+    format_str = "#0" + str(c_register_size + 2) + "b"
+    eig_min_tilde = np.abs(eig_min * (2 ** c_register_size - 1) / eig_max)
+    # floating point precision can cause problems
+    if np.abs(eig_min_tilde - 1) < 1e-7:
+        eig_min_tilde = 1
+    bin_str = format(int(eig_min_tilde), format_str)[2::]
+    eig_min_rep = 0
+    for i, char in enumerate(bin_str):
+        eig_min_rep += int(char) / (2 ** (i + 1))
+    return eig_min_rep
+
+
 def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
     # Ensure A is hermitian and b is normalized.
     A, b = mat_to_even_hermitian(A, b)
+    condition_number = np.linalg.cond(A) #np.abs(np.max(eigs)) / np.abs(np.min(eigs))  # Serching... NOT GOOD
     circuit = QuantumCircuit()
     ancilla_register = QuantumRegister(1, name='ancilla')
     c_register = QuantumRegister(A.shape[0], name='clock')
+    # c_register = QuantumRegister(np.ceil(np.log2(condition_number+1)), name='clock')
     divide_and_conquer = DivideAndConquer(circuit)
     using_divide: bool = False
     if b.size == 2:
@@ -93,7 +113,6 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
 
     # ---------RY-------------
     eigTilde = np.abs((eigs * t / (2 * np.pi)) * 2 ** c_register.size)
-    condition_number = np.linalg.cond(A) #np.abs(np.max(eigs)) / np.abs(np.min(eigs))  # Serching... NOT GOOD
     if print_circuit:
         print("A", A)
         print("b", b)
@@ -101,6 +120,21 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
         print("Condition number:", condition_number)
         print("Condition number:", np.linalg.cond(A))
     C = 1 / condition_number
+
+    #delta = get_delta(c_register.size, eig_min=np.min(np.abs(eigs)), eig_max=np.max(np.abs(eigs)))
+    #n_angles = 2 ** c_register.size
+    #angles = [0.0]
+#
+    #for i in range(1, n_angles):
+    #    if isclose(delta * n_angles / i, 1, abs_tol=1e-5):
+    #        angles.append(np.pi)
+    #    elif delta * n_angles / i < 1:
+    #        angles.append(2 * np.pi * delta * n_angles / i)
+    #    else:
+    #        angles.append(0.0)
+
+    # print(circuit.eig_bounds())
+    # circuit.compose(UCRYGate(angles), [ancilla_register[0]] + c_register[:], inplace=True)
 
     for i in range(c_register.size):
         # circuit.cry(rY_roation(eigTilde[i], C), cRegister[i], ancillaRegister)
@@ -127,6 +161,7 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
         try:
             circuit.draw(output='mpl').show()
         except:
-            print(circuit.draw(output='text'))
+            print("No circuit to draw!")
+            # print(circuit.draw(output='text'))
 
     return circuit

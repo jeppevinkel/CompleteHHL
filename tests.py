@@ -37,6 +37,7 @@ class Tests:
     test03 = Test(np.array([[7, 9], [1, 3]]), np.array([[4], [6]]), 'Test03')
     test04 = Test(np.array([[2, 7, 8], [4, 5, 2], [3, 1, 6]]), np.array([[4], [6], [23]]), 'Test04')
     test05 = Test(np.array([[1, 7], [9, 3]]), np.array([[4], [6]]), 'Test05')
+    test06 = Test(np.array([[1, 3], [3, 1]]), np.array([[1], [0]]), 'Test06')
     test_filip = filip_data()
 
     def __init__(self, debug=False):
@@ -59,7 +60,9 @@ class Tests:
         x = lu.lu_solve(test.A, test.b)
         print('Classical solution of', test.name)
         print("LU decomp. solution:\n", x)
-        print("\nExpected filtered measurement result (according to LU decomp.):\n", np.power(x/np.linalg.norm(x), 2))
+        x_norm = np.power(x/np.linalg.norm(x), 2)
+        print("\nExpected filtered measurement result (according to LU decomp.):\n", x_norm)
+        print("\nExpected filtered measurement result (according to LU decomp.):\n", x/np.linalg.norm(x))
 
     # runs a simulation using a HHL circuit assuming LSB is the ancilla bit
     @staticmethod
@@ -78,6 +81,7 @@ class Tests:
             plot_histogram(filtered_counts,
                            title='filtered ' + test_name + ', ' + implementation + ' implementation').show()
             results = np.array(list(filtered_counts.values()))
+            print('Result:', np.sqrt(results/np.sum(results)))
             print('Result:', results/np.sum(results))
         else:
             print("ANCILLA BIT NEVER 1")

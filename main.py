@@ -17,8 +17,8 @@ def main():
     testClass = Tests(debug=True)
     test = testClass.test05
 
-    print('Test using our implementation')
-    testClass.run_test(test)
+    # print('Test using our implementation')
+    # testClass.run_test(test)
 
     print('\nTest using the Qiskit implementation')
     testClass.run_qiskit_test(test)
