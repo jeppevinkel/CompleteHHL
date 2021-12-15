@@ -2,6 +2,7 @@ from datetime import datetime
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as stats
 
 from tests import Tests, Test
 import csv
@@ -53,6 +54,7 @@ def main():
             # print("q_res", q_res)
             # print("c_res", c_res)
 
+            variance = 0
             for q_res in q_tests:
                 if q_res.size == 2 and not np.isnan(q_res[0]) and not np.isnan(q_res[1]):
                     cur_d = np.sqrt(np.power((q_res[0] - 0.5), 2) + np.power((q_res[1] - 0.5), 2))
@@ -68,6 +70,12 @@ def main():
                     q_errors.append(np.NaN)
 
             size = (len(q_tests) - num_nan)
+            if size > 0:
+                variance = variance / (size * 2)
+            std_dev = np.sqrt(variance)
+            print('Size:', size)
+            print("variance:", variance)
+            print("Standard deviation:", std_dev)
             if size > 0:
                 d = d / (len(q_tests) - num_nan)
             else:
