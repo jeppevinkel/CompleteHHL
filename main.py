@@ -6,6 +6,7 @@ import scipy.stats as stats
 
 from tests import Tests, Test
 import csv
+import hhl
 
 r""" Guide for using this program:
 We have implemented a Tests class that can run a testxx, defined in the class itself. A test consists of an A matrix and
@@ -19,6 +20,7 @@ in https://qiskit.org/documentation/stubs/qiskit.algorithms.HHL.html?highlight=h
 def main():
     start = datetime.now()
     print("Start: ", start, '\n')
+
     with open('test_data.csv', mode='w', newline='') as test_file:
         test_writer = csv.writer(test_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL, dialect='excel')
         test_writer.writerow(['Condition number', 'Error', 'NaN count', '', '', 'Individual test results'])
@@ -31,9 +33,16 @@ def main():
 
         testClass = Tests(debug=False)
 
+        # hhl.hhl(Tests.tests[0].A, Tests.tests[0].b, t=np.pi, print_circuit=True)
+        # print(testClass.run_test(Tests.tests[0]))
+
+        # exit()
+
         condition_base = 1.5
 
         for i, test in np.ndenumerate(testClass.tests):
+            i = [11, ]
+            test = testClass.tests[11]
             condition = np.linalg.cond(test.A)
             print('Condition number:', condition, ' = 1.5^' + str(i[0]))
             x_size.append(condition)
@@ -45,13 +54,13 @@ def main():
 
             for _ in range(50):
                 # print('\nTest using the Qiskit implementation')
-                q_res = testClass.run_qiskit_test(test)
+                q_res = testClass.run_test(test)
                 q_tests.append(q_res)
 
             # print('\nTest using the classical implementation')
             # c_res = testClass.run_classical_test(test)
 
-            # print("q_res", q_res)
+            print("q_res", q_res)
             # print("c_res", c_res)
 
             variance = 0
@@ -84,9 +93,12 @@ def main():
             expected_avg_error = 0.353553
             z = np.linspace(0.5 + expected_avg_error / 2, 0.5 - expected_avg_error / 2, 1000)
             x = np.linspace(0, 1, 1000)
-            cdf = stats.norm.cdf(z, 0.5, std_dev)
+            # print(z)
+            if std_dev != 0:
+                cdf = stats.norm.cdf(z, 0.5, std_dev)
+                # print("P = ", cdf[0] - cdf[-1])
+                pass
             pdf = stats.norm.pdf(x, 0.5, std_dev)
-            print("P = ", cdf[0] - cdf[-1])
             print("###########################################")
             # plot normal dist
             plt.title(r'$\kappa=1.5^{' + str(i[0]) + r'}$, $\sigma=$' + str(round(std_dev, 6)))
@@ -108,6 +120,7 @@ def main():
             rows.append([condition, d, num_nan, '', '', *q_errors])
             error.append(d)
             nan.append(num_nan)
+            break
 
         test_writer.writerows(rows)
         test_writer.writerows([[], [], ['Condition number', 'X_1', 'X_2']])

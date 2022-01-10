@@ -53,6 +53,9 @@ class Tests:
     test10 = Test(np.array([[2.774570e+00, 4.335258e+00], [4.335258e+00, 7.398845e+00]]),
                   np.array([[1], [1.650406e+00]]), 'test 10')
 
+    test11 = Test(np.array([[1, 1/2], [1/2, 1]]),
+                  np.array([[1], [0]]), 'test 11')
+
     tests: list = [
         test0,
         test1,
@@ -65,6 +68,7 @@ class Tests:
         test8,
         test9,
         test10,
+        test11,
 
         # test12,
         # test13,
@@ -113,7 +117,7 @@ class Tests:
     # runs a test defined by a Test class using our circuit implementation
     def run_test(self, test: Test):
         circuit = hhl.hhl(test.A, test.b, t=np.pi, print_circuit=self.debug)
-        self.run_simulation(circuit, test.name, 'our')
+        return self.run_simulation(circuit, test.name, 'our')
 
     # runs a test defined by a Test class using the implementation built into Qiskit
     def run_qiskit_test(self, test: Test):
@@ -143,9 +147,10 @@ class Tests:
                 filtered_counts[key] = value
         # print('Counts', counts)
         # print('Filtered counts', filtered_counts)
+        plot_histogram(counts, title='unfiltered ' + test_name + ', ' + implementation + ' implementation').show()
         if len(filtered_counts):
-            # plot_histogram(filtered_counts,
-            #                title='filtered ' + test_name + ', ' + implementation + ' implementation').show()
+            plot_histogram(filtered_counts,
+                           title='filtered ' + test_name + ', ' + implementation + ' implementation').show()
             results = np.array([value for (key, value) in sorted(filtered_counts.items())])
             # results = np.array(list(filtered_counts.values()))
             # print('Result:', results/np.sum(results))
@@ -153,4 +158,3 @@ class Tests:
         else:
             # print("ANCILLA BIT NEVER 1")
             return np.array([np.NaN, np.NaN])
-        # plot_histogram(counts, title='unfiltered ' + test_name + ', ' + implementation + ' implementation').show()

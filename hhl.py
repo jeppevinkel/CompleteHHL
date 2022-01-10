@@ -55,6 +55,8 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
     c_register = QuantumRegister(A.shape[0], name='clock')
     divide_and_conquer = DivideAndConquer(circuit)
     using_divide: bool = False
+    circuit.add_register(ancilla_register)
+    circuit.add_register(c_register)
     if b.size == 2:
         b_register = QuantumRegister(1, name='b')
         circuit.add_register(b_register)
@@ -65,9 +67,6 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
         b_register = divide_and_conquer.measurePoints
         using_divide = True
     measurement = ClassicalRegister(b_register.size + 1, name='measurement')
-
-    circuit.add_register(ancilla_register)
-    circuit.add_register(c_register)
     circuit.add_register(measurement)
 
     Umatrix, eigs = u_matrix(A, t=t, debug=print_circuit)
@@ -119,6 +118,7 @@ def hhl(A, b: np.ndarray, t=np.pi, print_circuit: bool = False):
     if print_circuit:
         try:
             circuit.draw(output='mpl').show()
+            print(circuit.draw(output='latex_source'))
         except:
             print('Error: Could not draw circuit')
 
