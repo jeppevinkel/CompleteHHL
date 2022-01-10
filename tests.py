@@ -70,7 +70,7 @@ class PDE:
 class Tests:
     debug: bool
 
-    test0 = np.array(PDE(4).A, PDE(4).phi, "N=4")
+    test0 = Test(PDE(4).A, PDE(4).phi, "N=4")
 
     tests: list = [
         test0
