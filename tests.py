@@ -36,7 +36,7 @@ class PDE:
         # A @ u = phi
         # Ab: A banded
         Ab = np.zeros((n + 1 + n, n * n))
-        self.phi = np.empty(n * n)
+        self.phi = np.empty((n * n, 1))
 
         # for every (col, row) in the grid of unknowns
         for col in range(n):
@@ -45,7 +45,7 @@ class PDE:
                 y = y0 + (row + 1) * h
                 j = row * n + col  # index of unknown
                 Ab[n, j] = 4
-                self.phi[j] = h ** 2 * PDE.f(x, y)
+                self.phi[j, 0] = h ** 2 * PDE.f(x, y)
                 if col > 0:  # interior point to the left
                     Ab[n - 1, j] = -1
                 if col < n - 1:  # interior point to the right
@@ -58,7 +58,7 @@ class PDE:
         self.A = np.zeros((Ab.shape[1], Ab.shape[1]))
         diags = int(Ab.shape[0] / 2)
         for diag in range(0, int(Ab.shape[0] / 2)):
-            print("diag", diag)
+            # print("diag", diag)
             for el in range(0, Ab.shape[1] - (diags - diag)):
                 self.A[el, diags - diag + el] = Ab[diag, diags - diag + el]
                 self.A[(diags - diag) + el, el] = Ab[(diags * 2) - diag, el]
