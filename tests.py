@@ -3,19 +3,9 @@ from qiskit import Aer, transpile, QuantumCircuit
 from qiskit.visualization import plot_histogram
 from qiskitImplementation import return_qiskit_circuit
 import lu
+import pandas as pd
 
 import hhl
-
-
-def filip_data():
-    data = np.loadtxt('Filip.dat', skiprows=60)
-    assert data.shape == (82, 2)
-
-    y_filip, x_filip = data.T
-    a = x_filip.reshape((-1, 1)) ** np.arange(11)
-    b = y_filip[..., None]
-    return Test(a, b, 'Filip')
-
 
 class Test:
     A: np.ndarray
@@ -28,83 +18,62 @@ class Test:
         self.name = name
 
 
+class PDE:
+    A: np.ndarray
+    phi: np.ndarray
+
+    @staticmethod
+    def f(x, y):
+        return 1 + x + y
+
+    def __init__(self, N):
+        x0 = y0 = 0.
+        x1 = y1 = 1.
+
+        h = (x1 - x0) / N  # h is the same for y
+        n = N - 1  # since u(x, y) is specified at the boundary (u=0), we have (N-1)^2 unknowns.
+
+        # A @ u = phi
+        # Ab: A banded
+        Ab = np.zeros((n + 1 + n, n * n))
+        self.phi = np.empty(n * n)
+
+        # for every (col, row) in the grid of unknowns
+        for col in range(n):
+            x = x0 + (col + 1) * h
+            for row in range(n):
+                y = y0 + (row + 1) * h
+                j = row * n + col  # index of unknown
+                Ab[n, j] = 4
+                self.phi[j] = h ** 2 * PDE.f(x, y)
+                if col > 0:  # interior point to the left
+                    Ab[n - 1, j] = -1
+                if col < n - 1:  # interior point to the right
+                    Ab[n + 1, j] = -1
+                if row > 0:  # interior point below
+                    Ab[0, j] = -1
+                if row < n - 1:  # interior point above
+                    Ab[2 * n, j] = -1
+
+        self.A = np.zeros((Ab.shape[1], Ab.shape[1]))
+        diags = int(Ab.shape[0] / 2)
+        for diag in range(0, int(Ab.shape[0] / 2)):
+            print("diag", diag)
+            for el in range(0, Ab.shape[1] - (diags - diag)):
+                self.A[el, diags - diag + el] = Ab[diag, diags - diag + el]
+                self.A[(diags - diag) + el, el] = Ab[(diags * 2) - diag, el]
+
+        for el in range(0, Ab.shape[1]):
+            self.A[el, el] = Ab[diags, el]
+
+
 class Tests:
     debug: bool
 
-    test0 = Test(np.array([[10, -8.881784e-16], [8.881784e-16, 10]]), np.array([[1], [1]]), 'test 0')
-    test1 = Test(np.array([[7.549020e+00, 1.470588e+00], [1.470588e+00, 9.117647e+00]]),
-                 np.array([[1], [1.173913e+00]]), 'test 1')
-    test2 = Test(np.array([[5.915033e+00, 2.450980e+00], [2.450980e+00, 8.529412e+00]]),
-                 np.array([[1], [1.312500e+00]]), 'test 2')
-    test3 = Test(np.array([[4.825708e+00, 3.104575e+00], [3.104575e+00, 8.137255e+00]]),
-                 np.array([[1], [1.417582e+00]]), 'test 3')
-    test4 = Test(np.array([[4.099492e+00, 3.540305e+00], [3.540305e+00, 7.875817e+00]]),
-                 np.array([[1], [1.494297e+00]]), 'test 4')
-    test5 = Test(np.array([[3.615347e+00, 3.830792e+00], [3.830792e+00, 7.701525e+00]]),
-                 np.array([[1], [1.548765e+00]]), 'test 5')
-    test6 = Test(np.array([[3.292585e+00, 4.024449e+00], [4.024449e+00, 7.585330e+00]]),
-                 np.array([[1], [1.586678e+00]]), 'test 6')
-    test7 = Test(np.array([[3.077409e+00, 4.153554e+00], [4.153554e+00, 7.507867e+00]]),
-                 np.array([[1], [1.612706e+00]]), 'test 7')
-    test8 = Test(np.array([[2.933959e+00, 4.239625e+00], [4.239625e+00, 7.456225e+00]]),
-                 np.array([[1], [1.630405e+00]]), 'test 8')
-    test9 = Test(np.array([[2.838326e+00, 4.297005e+00], [4.297005e+00, 7.421797e+00]]),
-                 np.array([[1], [1.642363e+00]]), 'test 9')
-    test10 = Test(np.array([[2.774570e+00, 4.335258e+00], [4.335258e+00, 7.398845e+00]]),
-                  np.array([[1], [1.650406e+00]]), 'test 10')
+    test0 = np.array(PDE(4).A, PDE(4).phi, "N=4")
 
     tests: list = [
-        test0,
-        test1,
-        test2,
-        test3,
-        test4,
-        test5,
-        test6,
-        test7,
-        test8,
-        test9,
-        test10,
-
-        # test12,
-        # test13,
-        # test14,
-        # test15,
-        # test16,
-        # test17,
-        # test18,
-        # test19,
-        # test20,
-        # test21,
-        # test22,
-        # test23,
-        # test24,
-        # test25,
-        # test26,
-        # test27,
-        # test28,
-        # test29,
-        # test30,
-        # test31,
-        # test32,
-        # test33,
-        # test34,
-        # test35,
-        # test36,
-        # test37,
-        # test38,
-        # test39,
-        # test40,
-        # test41,
-        # test42,
-        # test43,
-        # test44,
-        # test45,
-        # test46,
-        # test47,
-        # test48,
-        # test49,
-        # test50
+        test0
     ]
 
     def __init__(self, debug=False):
