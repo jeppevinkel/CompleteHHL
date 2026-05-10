@@ -70,7 +70,10 @@ class PDE:
 class Tests:
     debug: bool
 
-    test0 = Test(PDE(4).A, PDE(4).phi, "N=4")
+    test0 = Test(PDE(5).A, PDE(5).phi, "N=5")
+    # test1 = Test(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), np.array([[1], [0], [1]]), "N=4")
+    test2 = Test(np.array([[5.915033e+00, 2.450980e+00, 2.450980e+00], [2.450980e+00, 8.529412e+00, 8.529412e+00]]),
+                 np.array([[1], [1.312500e+00], [1]]), 'test 2')
 
     tests: list = [
         test0
@@ -85,8 +88,8 @@ class Tests:
         self.run_simulation(circuit, test.name, 'our')
 
     # runs a test defined by a Test class using the implementation built into Qiskit
-    def run_qiskit_test(self, test: Test):
-        circuit = return_qiskit_circuit(test.A, test.b)
+    def run_qiskit_test(self, test: Test, nc_offset=0):
+        circuit = return_qiskit_circuit(test.A, test.b, nc_offset)
         if self.debug:
             circuit.draw(output='mpl').show()
         return self.run_simulation(circuit, test.name, 'qiskit')
@@ -103,6 +106,7 @@ class Tests:
     @staticmethod
     def run_simulation(circuit: QuantumCircuit, test_name: str, implementation: str):
         backend = Aer.get_backend('aer_simulator')
+        backend.set_options(noise_model=None)
         t_circuit = transpile(circuit, backend)
         result = backend.run(t_circuit, shots=4096).result()
         counts = result.get_counts()

@@ -20,19 +20,35 @@ def main():
     start = datetime.now()
     print("Start: ", start, '\n')
     testClass = Tests(debug=True)
+    test = testClass.tests[0]
 
-    for i, test in np.ndenumerate(testClass.tests):
-        print(test.name)
-        q_tests = []
+    for offset in range(0, 4):
+        try:
+            print(test.name, '\nnc_offset: ', offset)
+            q_tests = []
 
-        print("A", test.A)
-        print("b", test.b)
+            print("A", test.A)
+            print("b", test.b)
 #
-        q_res = testClass.run_test(test)
-        #q_tests.append(q_res)
-        print("Result:", q_res)
-        print("Result^2:", np.power(q_res, 2))
-        print("sqrt(Result):", np.sqrt(q_res))
+            q_res = testClass.run_qiskit_test(test, offset)
+            #q_tests.append(q_res)
+            print("Result:", q_res)
+            print("Result^2:", np.power(q_res, 2))
+            print("sqrt(Result):", np.sqrt(q_res))
+
+            n = round(np.sqrt(len(np.sqrt(q_res))))
+            u = np.sqrt(q_res).reshape(n, n)
+            u = np.pad(u, (1, 1))  # add boundary
+            xx, yy = np.meshgrid(np.linspace(0, 1, n + 2), np.linspace(0, 1, n + 2))
+            ax = plt.axes(projection='3d')
+            ax.plot_surface(xx, yy, u, cmap='viridis')
+            ax.set_title(f'N = {n + 1}, nc_offset = {offset}')
+            ax.set_xlabel('x')
+            ax.set_ylabel('y')
+            ax.set_zlabel('u')
+            plt.show()
+        except:
+            print("Error")
 
     end = datetime.now()
     print("\nExecution time: ", end - start)

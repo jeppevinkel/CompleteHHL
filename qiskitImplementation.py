@@ -5,11 +5,11 @@ from qiskit.visualization import plot_histogram
 from unitaryDecomposition import mat_to_even_hermitian
 
 
-def return_qiskit_circuit(a: np.ndarray, b: np.ndarray):
+def return_qiskit_circuit(a: np.ndarray, b: np.ndarray, nc_offset=0):
     _a, _b = mat_to_even_hermitian(a, b)
 
     qiskit_hhl = HHL()
-    hhl_circuit = qiskit_hhl.construct_circuit(_a, _b)
+    hhl_circuit = qiskit_hhl.construct_circuit(_a, _b, neg_vals=False, nc_offset=nc_offset)
     ancilla_register = hhl_circuit.qregs[-1]
     b_register = hhl_circuit.qregs[0]
     m_register = ClassicalRegister(ancilla_register.size + b_register.size)
